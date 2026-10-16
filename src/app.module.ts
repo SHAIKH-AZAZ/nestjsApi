@@ -1,3 +1,4 @@
+
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -15,20 +16,26 @@ import { ProjectsModule } from './projects/projects.module.js';
         NODE_ENV: Joi.string()
           .valid('development', 'test', 'production')
           .default('development'),
+
         PORT: Joi.number().port().default(3000),
+
         MONGODB_URI: Joi.string().required(),
+
         JWT_SECRET: Joi.string().min(32).required(),
+
         JWT_EXPIRES_IN: Joi.string().default('15m'),
       }),
     }),
 
-    MongooseModule.forFeatureAsync({
+    // Connect to MongoDB
+    MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         uri: config.getOrThrow<string>('MONGODB_URI'),
       }),
     }),
+
     UsersModule,
     AuthModule,
     ProjectsModule,
